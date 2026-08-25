@@ -2,12 +2,13 @@ from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 from typing import Dict, List, TypedDict
+from pydantic import BaseModel, EmailStr, Field
 import os
 from pathlib import Path
 
 app = FastAPI(
     title="Mergington High School API",
-    description="API for viewing and signing up for extracurricular activities"
+    description="API for viewing and signing up for extracurricular activities",
 )
 
 # Mount the static files directory
@@ -17,7 +18,6 @@ app.mount(
     StaticFiles(directory=os.path.join(Path(__file__).parent, "static")),
     name="static",
 )
-
 
 class Activity(TypedDict):
     """Typed dictionary representing an extracurricular activity.
@@ -33,6 +33,12 @@ class Activity(TypedDict):
     max_participants: int
     participants: List[str]
 
+class ActivityModel(BaseModel):
+    """Pydantic model mirroring the Activity TypedDict for FastAPI response validation."""
+    description: str = Field(..., description="Detailed description of the activity.")
+    schedule: str = Field(..., description="Meeting schedule (e.g., 'Mondays, 3:00 PM').")
+    max_participants: int = Field(..., ge=0, description="Maximum number of participants allowed.")
+    participants: List[EmailStr] = Field(default_factory=list, description="List of participant email addresses.")
 
 # In-memory activity database
 activities: Dict[str, Activity] = {
@@ -56,8 +62,7 @@ activities: Dict[str, Activity] = {
     },
 }
 
-
-@app.get("/")
+@app.get("/", response_class=RedirectResponse)
 def root() -> RedirectResponse:
     """Root endpoint that redirects to the static frontend.
     
@@ -66,8 +71,7 @@ def root() -> RedirectResponse:
     """
     return RedirectResponse(url="/static/index.html")
 
-
-@app.get("/activities", response_model=Dict[str, Activity])
+@app.get("/activities", response_model=Dict[str, ActivityModel])
 def get_activities() -> Dict[str, Activity]:
     """Return the full dictionary of activities.
     
@@ -76,8 +80,7 @@ def get_activities() -> Dict[str, Activity]:
     """
     return activities
 
-
-@app.post("/activities/{activity_name}/signup", response_model=Activity)
+@app.post("/activities/{activity_name}/signup", response_model=ActivityModel)
 def signup_for_activity(activity_name: str, email: str) -> Activity:
     """Sign up a student for a given activity.
     
