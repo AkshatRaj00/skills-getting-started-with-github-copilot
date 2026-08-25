@@ -29,19 +29,21 @@ app.mount(
     name="static"
 )
 
+
 class Activity(TypedDict):
     """Typed dictionary representing an extracurricular activity.
     
     Attributes:
-        description: Detailed description of the activity
-        schedule: Meeting schedule as a string
-        max_participants: Maximum number of participants allowed
-        participants: List of student emails currently signed up
+        description: Detailed description of the activity.
+        schedule: Meeting schedule as a string (e.g., "Mondays, 3:00 PM").
+        max_participants: Maximum number of participants allowed (non-negative integer).
+        participants: List of student emails currently signed up.
     """
     description: str
     schedule: str
     max_participants: int
     participants: List[str]
+
 
 # In-memory activity database
 activities: Dict[str, Activity] = {
@@ -71,7 +73,7 @@ def root() -> RedirectResponse:
     """Root endpoint that redirects to the static frontend.
     
     Returns:
-        RedirectResponse: HTTP redirect to the static index.html page
+        RedirectResponse: HTTP redirect to the static index.html page.
     """
     return RedirectResponse(url="/static/index.html")
 
@@ -81,7 +83,7 @@ def get_activities() -> Dict[str, Activity]:
     """Retrieve all available extracurricular activities.
     
     Returns:
-        Dict[str, Activity]: Dictionary mapping activity names to their details
+        Dict[str, Activity]: Dictionary mapping activity names to their details.
     """
     return activities
 
@@ -91,14 +93,14 @@ def signup_for_activity(activity_name: str, email: str) -> Dict[str, str]:
     """Sign up a student for an extracurricular activity.
     
     Args:
-        activity_name: Name of the activity to sign up for
-        email: Student's email address
-        
+        activity_name: Name of the activity to sign up for.
+        email: Student's email address (must be a valid Mergington High email).
+    
     Returns:
-        Dict[str, str]: Confirmation message
-        
+        Dict[str, str]: Confirmation message with format {"message": "Signed up {email} for {activity_name}"}.
+    
     Raises:
-        HTTPException: 404 if activity doesn't exist
+        HTTPException: 404 if the specified activity does not exist.
     """
     # Validate activity exists
     if activity_name not in activities:
