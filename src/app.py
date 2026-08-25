@@ -1,14 +1,3 @@
-"""
-High School Management System API
-
-A super simple FastAPI application that allows students to view and sign up
-for extracurricular activities at Mergington High School.
-
-Type Contracts:
-- Activities: Dict[str, Activity]
-- Activity: TypedDict with description, schedule, max_participants, participants
-"""
-
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
@@ -24,9 +13,9 @@ app = FastAPI(
 # Mount the static files directory
 current_dir = Path(__file__).parent
 app.mount(
-    "/static", 
-    StaticFiles(directory=os.path.join(Path(__file__).parent, "static")), 
-    name="static"
+    "/static",
+    StaticFiles(directory=os.path.join(Path(__file__).parent, "static")),
+    name="static",
 )
 
 
@@ -51,20 +40,20 @@ activities: Dict[str, Activity] = {
         "description": "Learn strategies and compete in chess tournaments",
         "schedule": "Fridays, 3:30 PM - 5:00 PM",
         "max_participants": 12,
-        "participants": ["michael@mergington.edu", "daniel@mergington.edu"]
+        "participants": ["michael@mergington.edu", "daniel@mergington.edu"],
     },
     "Programming Class": {
         "description": "Learn programming fundamentals and build software projects",
         "schedule": "Tuesdays and Thursdays, 3:30 PM - 4:30 PM",
         "max_participants": 20,
-        "participants": ["emma@mergington.edu", "sophia@mergington.edu"]
+        "participants": ["emma@mergington.edu", "sophia@mergington.edu"],
     },
     "Gym Class": {
         "description": "Physical education and sports activities",
         "schedule": "Mondays, Wednesdays, Fridays, 2:00 PM - 3:00 PM",
         "max_participants": 30,
-        "participants": ["john@mergington.edu", "olivia@mergington.edu"]
-    }
+        "participants": ["john@mergington.edu", "olivia@mergington.edu"],
+    },
 }
 
 
@@ -78,45 +67,39 @@ def root() -> RedirectResponse:
     return RedirectResponse(url="/static/index.html")
 
 
-@app.get("/activities")
+@app.get("/activities", response_model=Dict[str, Activity])
 def get_activities() -> Dict[str, Activity]:
-    """Retrieve all available extracurricular activities.
+    """Return the full dictionary of activities.
     
     Returns:
-        Dict[str, Activity]: Dictionary mapping activity names to their details.
+        Dict[str, Activity]: Mapping from activity name to its details.
     """
     return activities
 
 
-@app.post("/activities/{activity_name}/signup")
-def signup_for_activity(activity_name: str, email: str) -> Dict[str, str]:
-    """Sign up a student for an extracurricular activity.
+@app.post("/activities/{activity_name}/signup", response_model=Activity)
+def signup_for_activity(activity_name: str, email: str) -> Activity:
+    """Sign up a student for a given activity.
     
     Args:
-        activity_name: Name of the activity to sign up for.
-        email: Student's email address (must be a valid Mergington High email).
+        activity_name: The name of the activity to join.
+        email: Student's email address.
     
     Returns:
-        Dict[str, str]: Confirmation message with format {"message": "Signed up {email} for {activity_name}"}.
+        Activity: The updated activity record after successful sign‑up.
     
     Raises:
-        HTTPException: 404 if the specified activity does not exist.
-        HTTPException: 400 if the activity has reached its maximum number of participants.
+        HTTPException: 404 if the activity does not exist.
+        HTTPException: 400 if the activity is full or the email is already registered.
     """
-    # Validate activity exists
     if activity_name not in activities:
         raise HTTPException(status_code=404, detail="Activity not found")
-    
-    # Get the specific activity
+
     activity = activities[activity_name]
-    
-    # Check if activity is full
+    if email in activity["participants"]:
+        raise HTTPException(status_code=400, detail="Student already signed up for this activity")
     if len(activity["participants"]) >= activity["max_participants"]:
-        raise HTTPException(
-            status_code=400, 
-            detail=f"Activity '{activity_name}' has reached its maximum number of participants"
-        )
-    
-    # Add student
+        raise HTTPException(status_code=400, detail="Activity has reached maximum capacity")
+
     activity["participants"].append(email)
-    return {"message": f"Signed up {email} for {activity_name}"}
+    return activity
