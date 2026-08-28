@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
-from typing import Dict, List, TypedDict
+from typing import Dict, List, TypedDict, Optional
 from pydantic import BaseModel, EmailStr, Field
 import os
 from pathlib import Path
@@ -25,7 +25,7 @@ class Activity(TypedDict):
     Attributes:
         description: Detailed description of the activity.
         schedule: Meeting schedule as a string (e.g., "Mondays, 3:00 PM").
-        max_participants: Maximum number of participants allowed (non‑negative integer).
+        max_participants: Maximum number of participants allowed (non-negative integer).
         participants: List of participant email addresses (validated as EmailStr).
     """
     description: str
@@ -40,7 +40,7 @@ class ActivityModel(BaseModel):
     max_participants: int = Field(..., ge=0, description="Maximum number of participants allowed.")
     participants: List[EmailStr] = Field(default_factory=list, description="List of participant email addresses.")
 
-# In‑memory activity database
+# In-memory activity database
 activities: Dict[str, Activity] = {
     "Chess Club": {
         "description": "Learn strategies and compete in chess tournaments",
@@ -62,47 +62,49 @@ activities: Dict[str, Activity] = {
     },
     "Gym Class": {
         "description": "Physical education and sports activities",
-        "schedule": "Mondays, Wednesdays, Fridays, 2:00 PM - 3:00 PM",
-        "max_participants": 30,
+        "schedule": "Mondays, Wednesdays, and Fridays, 2:00 PM - 3:00 PM",
+        "max_participants": 25,
         "participants": [
-            EmailStr("john@mergington.edu"),
             EmailStr("olivia@mergington.edu"),
+            EmailStr("ava@mergington.edu"),
         ],
     },
 }
 
-@app.get("/", response_class=RedirectResponse)
+@app.get("/", include_in_schema=False)
 def root() -> RedirectResponse:
-    """Redirect the base URL to the static front‑end index page."""
+    """Redirect to the static index.html page."""
     return RedirectResponse(url="/static/index.html")
 
-@app.get("/activities", response_model=List[ActivityModel])
-def get_activities() -> List[ActivityModel]:
-    """Return a list of all extracurricular activities with current participants."""
-    return [ActivityModel(**activity) for activity in activities.values()]
+@app.get("/activities", response_model=Dict[str, ActivityModel])
+def get_activities() -> Dict[str, ActivityModel]:
+    """Retrieve all activities.
+    
+    Returns:
+        Dict[str, ActivityModel]: A dictionary of activities with their names as keys.
+    """
+    return activities
 
-@app.post("/activities/{activity_name}/signup", response_model=ActivityModel)
-def signup_for_activity(activity_name: str, email: EmailStr) -> ActivityModel:
-    """Sign up a student (by email) for a given activity.
+@app.post("/activities/signup")
+def signup_for_activity(activity_name: str, email: EmailStr) -> Dict[str, str]:
+    """Sign up for an activity.
     
     Args:
-        activity_name: The name of the activity to join.
-        email: The student's email address.
+        activity_name: Name of the activity to sign up for.
+        email: Email address of the participant.
+    
+    Returns:
+        Dict[str, str]: A dictionary with a success message.
     
     Raises:
-        HTTPException: If the activity does not exist, the email is already registered,
-        or the activity has reached its participant limit.
+        HTTPException: If the activity is not found or is full.
     """
     if activity_name not in activities:
         raise HTTPException(status_code=404, detail="Activity not found")
-
+    
     activity = activities[activity_name]
-
-    if email in activity["participants"]:
-        raise HTTPException(status_code=400, detail="Email already signed up for this activity")
-
     if len(activity["participants"]) >= activity["max_participants"]:
-        raise HTTPException(status_code=400, detail="Activity has reached maximum capacity")
-
+        raise HTTPException(status_code=400, detail="Activity is full")
+    
     activity["participants"].append(email)
-    return ActivityModel(**activity)
+    return {"message": f"Successfully signed up for {activity_name}"}
