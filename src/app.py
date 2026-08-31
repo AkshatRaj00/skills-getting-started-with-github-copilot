@@ -19,7 +19,7 @@ app.mount(
     name="static",
 )
 
-class Activity(TypedDict):
+class Activity(TypedDict, total=False):
     """Typed dictionary representing an extracurricular activity.
     
     Attributes:
@@ -62,49 +62,26 @@ activities: Dict[str, Activity] = {
     },
     "Gym Class": {
         "description": "Physical education and sports activities",
-        "schedule": "Mondays, Wednesdays, and Fridays, 2:00 PM - 3:00 PM",
-        "max_participants": 25,
-        "participants": [
-            EmailStr("olivia@mergington.edu"),
-            EmailStr("ava@mergington.edu"),
-        ],
+        "schedule": "Mondays, Wednesdays, Fridays, 3:30 PM - 4:30 PM",
+        "max_participants": 30,
+        "participants": [],
     },
 }
 
-@app.get("/", include_in_schema=False)
-def root() -> RedirectResponse:
-    """Redirect to the static index.html page."""
-    return RedirectResponse(url="/static/index.html")
+def root() -> Dict[str, str]:
+    """Root endpoint of the API."""
+    return {"message": "Welcome to Mergington High School API"}
 
-@app.get("/activities", response_model=Dict[str, ActivityModel])
-def get_activities() -> Dict[str, ActivityModel]:
-    """Retrieve all activities.
-    
-    Returns:
-        Dict[str, ActivityModel]: A dictionary of activities with their names as keys.
-    """
-    return activities
+def get_activities() -> List[ActivityModel]:
+    """Retrieve a list of all activities."""
+    return [ActivityModel(**activity) for activity in activities.values()]
 
-@app.post("/activities/signup")
 def signup_for_activity(activity_name: str, email: EmailStr) -> Dict[str, str]:
-    """Sign up for an activity.
-    
-    Args:
-        activity_name: Name of the activity to sign up for.
-        email: Email address of the participant.
-    
-    Returns:
-        Dict[str, str]: A dictionary with a success message.
-    
-    Raises:
-        HTTPException: If the activity is not found or is full.
-    """
+    """Signup for an activity by providing the activity name and email address."""
     if activity_name not in activities:
         raise HTTPException(status_code=404, detail="Activity not found")
-    
     activity = activities[activity_name]
-    if len(activity["participants"]) >= activity["max_participants"]:
+    if len(activity['participants']) >= activity['max_participants']:
         raise HTTPException(status_code=400, detail="Activity is full")
-    
-    activity["participants"].append(email)
-    return {"message": f"Successfully signed up for {activity_name}"}
+    activity['participants'].append(email)
+    return {"message": f"Signed up for {activity_name}"}
