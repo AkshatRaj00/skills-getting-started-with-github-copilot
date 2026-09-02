@@ -23,10 +23,10 @@ class Activity(TypedDict, total=False):
     """Typed dictionary representing an extracurricular activity.
     
     Attributes:
-        description: Detailed description of the activity.
-        schedule: Meeting schedule as a string (e.g., "Mondays, 3:00 PM").
-        max_participants: Maximum number of participants allowed (non-negative integer).
-        participants: List of participant email addresses (validated as EmailStr).
+        description (str): Detailed description of the activity.
+        schedule (str): Meeting schedule as a string (e.g., "Mondays, 3:00 PM").
+        max_participants (int): Maximum number of participants allowed (non-negative integer).
+        participants (List[EmailStr]): List of participant email addresses (validated as EmailStr).
     """
     description: str
     schedule: str
