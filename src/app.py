@@ -20,14 +20,7 @@ app.mount(
 )
 
 class Activity(TypedDict, total=False):
-    """Typed dictionary representing an extracurricular activity.
-    
-    Attributes:
-        description (str): Detailed description of the activity.
-        schedule (str): Meeting schedule as a string (e.g., "Mondays, 3:00 PM").
-        max_participants (int): Maximum number of participants allowed (non-negative integer).
-        participants (List[EmailStr]): List of participant email addresses (validated as EmailStr).
-    """
+    """Typed dictionary representing an extracurricular activity.\n\n    Attributes:\n        description (str): Detailed description of the activity.\n        schedule (str): Meeting schedule as a string (e.g., "Mondays, 3:00 PM").\n        max_participants (int): Maximum number of participants allowed (non-negative integer).\n        participants (List[EmailStr]): List of participant email addresses (validated as EmailStr).\n    """
     description: str
     schedule: str
     max_participants: int
@@ -77,11 +70,11 @@ def get_activities() -> List[ActivityModel]:
     return [ActivityModel(**activity) for activity in activities.values()]
 
 def signup_for_activity(activity_name: str, email: EmailStr) -> Dict[str, str]:
-    """Signup for an activity by providing the activity name and email address."""
+    """Sign up for an activity by providing the activity name and email address."""
     if activity_name not in activities:
         raise HTTPException(status_code=404, detail="Activity not found")
     activity = activities[activity_name]
     if len(activity['participants']) >= activity['max_participants']:
         raise HTTPException(status_code=400, detail="Activity is full")
     activity['participants'].append(email)
-    return {"message": f"Signed up for {activity_name}"}
+    return {"message": f"Signed up for {{activity_name}}"}
