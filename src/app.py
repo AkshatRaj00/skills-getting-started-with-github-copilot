@@ -77,4 +77,4 @@ def signup_for_activity(activity_name: str, email: EmailStr) -> Dict[str, str]:
     if len(activity['participants']) >= activity['max_participants']:
         raise HTTPException(status_code=400, detail="Activity is full")
     activity['participants'].append(email)
-    return {"message": f"Signed up for {{activity_name}}"}
+    return {"message": f"Signed up for {activity_name}"}
