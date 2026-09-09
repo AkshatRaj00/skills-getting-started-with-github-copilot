@@ -40,7 +40,16 @@ class ActivityModel(BaseModel):
     max_participants: int = Field(..., ge=0, description="Maximum number of participants allowed.")
     participants: List[EmailStr] = Field(default_factory=list, description="List of participant email addresses.")
 
-# In-memory activity database
+# TypedDict contracts for API responses (non‑breaking, compatible with ``dict``)
+class MessageResponse(TypedDict):
+    """Standard message payload returned by simple endpoints."""
+    message: str
+
+class SignupResponse(TypedDict):
+    """Payload returned after a successful activity sign‑up."""
+    message: str
+
+# In‑memory activity database
 activities: Dict[str, Activity] = {
     "Chess Club": {
         "description": "Learn strategies and compete in chess tournaments",
@@ -68,20 +77,30 @@ activities: Dict[str, Activity] = {
     },
 }
 
-def root() -> Dict[str, str]:
-    """Root endpoint of the API."""
+def root() -> MessageResponse:
+    """Root endpoint of the API.
+
+    Returns a simple greeting message wrapped in a ``MessageResponse`` TypedDict.
+    """
     return {"message": "Welcome to Mergington High School API"}
 
 def get_activities() -> List[ActivityModel]:
-    """Retrieve a list of all activities."""
+    """Retrieve a list of all activities.
+
+    The function converts the internal ``Activity`` TypedDict entries into
+    ``ActivityModel`` instances for FastAPI response validation.
+    """
     return [ActivityModel(**activity) for activity in activities.values()]
 
-def signup_for_activity(activity_name: str, email: EmailStr) -> Dict[str, str]:
+def signup_for_activity(activity_name: str, email: EmailStr) -> SignupResponse:
     """Sign up for an activity by providing the activity name and email address.
 
     Args:
         activity_name: The name of the activity to join.
         email: Validated email address of the participant.
+
+    Returns:
+        ``SignupResponse`` containing a confirmation message.
     """
     if activity_name not in activities:
         raise HTTPException(status_code=404, detail="Activity not found")
