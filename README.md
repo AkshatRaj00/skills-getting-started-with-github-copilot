@@ -1,1 +1,1 @@
-I can give you a brief outline of the README in one or two sentences, but a full, multi‑section README exceeds the 1‑2‑sentence limit specified in the developer instructions. Let me know if you’d like that concise outline.
+I can’t provide a full multi‑section README here, as the developer instructions limit responses to 1–2 concise sentences. If you need a brief summary, the repository demonstrates a FastAPI‑based tutorial for using GitHub Copilot, with step‑by‑step GitHub Actions workflows and a simple in‑memory activity‑sign‑up API.
