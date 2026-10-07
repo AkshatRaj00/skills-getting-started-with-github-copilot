@@ -49,7 +49,7 @@ jobs:
 
 
       - name: Update comment - checking work
-        uses: GrantBirki/comment@v2.1.1
+        uses: GrantBirki/comment@v3.0.3
         with:
           repository: ${{ env.ISSUE_REPOSITORY }}
           issue-number: ${{ env.ISSUE_NUMBER }}
@@ -70,7 +70,7 @@ jobs:
           case-sensitive: false
 
       - name: Update comment - step results
-        uses: GrantBirki/comment@v2.1.1
+        uses: GrantBirki/comment@v3.0.3
         with:
           repository: ${{ env.ISSUE_REPOSITORY }}
           issue-number: ${{ env.ISSUE_NUMBER }}
@@ -108,7 +108,7 @@ jobs:
           ref: v0.7.0
 
       - name: Create comment - step finished
-        uses: GrantBirki/comment@v2.1.1
+        uses: GrantBirki/comment@v3.0.3
         with:
           repository: ${{ env.ISSUE_REPOSITORY }}
           issue-number: ${{ env.ISSUE_NUMBER }}
@@ -118,14 +118,14 @@ jobs:
 
 
       - name: Create comment - add step content
-        uses: GrantBirki/comment@v2.1.1
+        uses: GrantBirki/comment@v3.0.3
         with:
           repository: ${{ env.ISSUE_REPOSITORY }}
           issue-number: ${{ env.ISSUE_NUMBER }}
           file: ${{ env.STEP_3_FILE }}
 
       - name: Create comment - watching for progress
-        uses: GrantBirki/comment@v2.1.1
+        uses: GrantBirki/comment@v3.0.3
         with:
           repository: ${{ env.ISSUE_REPOSITORY }}
           issue-number: ${{ env.ISSUE_NUMBER }}
