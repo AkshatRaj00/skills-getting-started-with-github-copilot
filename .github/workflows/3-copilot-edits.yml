@@ -59,7 +59,7 @@ jobs:
       - name: Check for participant info in app.js
         id: check-app-js
         continue-on-error: true
-        uses: skills/action-keyphrase-checker@v1
+        uses: skills/action-keyphrase-checker@v2
         with:
           text-file: src/static/app.js
           keyphrase: participant
@@ -69,7 +69,7 @@ jobs:
       - name: Check for participant info in styles.css
         id: check-styles-css
         continue-on-error: true
-        uses: skills/action-keyphrase-checker@v1
+        uses: skills/action-keyphrase-checker@v2
         with:
           text-file: src/static/styles.css
           keyphrase: participant
