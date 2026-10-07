@@ -62,7 +62,7 @@ jobs:
       - name: Check for additional student activities
         id: check-additional-activities
         continue-on-error: true
-        uses: skills/action-keyphrase-checker@v1
+        uses: skills/action-keyphrase-checker@v2
         with:
           text-file: src/app.py
           keyphrase: '"description"'

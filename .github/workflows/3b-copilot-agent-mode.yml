@@ -20,7 +20,7 @@ jobs:
     steps:
       - name: Check for professortocat reference
         id: check_professortocat
-        uses: skills/action-keyphrase-checker@v1
+        uses: skills/action-keyphrase-checker@v2
         with:
           text: ${{ github.event.comment.body }}
           keyphrase: "professortocat"
@@ -28,7 +28,7 @@ jobs:
           minimum-occurrences: 1
       - name: Check for alert reference
         id: check_alert
-        uses: skills/action-keyphrase-checker@v1
+        uses: skills/action-keyphrase-checker@v2
         with:
           text: ${{ github.event.comment.body }}
           keyphrase: "agent"
